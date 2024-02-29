@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -1177,8 +1177,7 @@ public final class Pattern
                     compile();
             }
         }
-        Matcher m = new Matcher(this, input);
-        return m;
+        return new Matcher(this, input);
     }
 
     /**
@@ -1704,8 +1703,8 @@ public final class Pattern
         String combiningMarks = src.substring(len);
         String[] perms = producePermutations(combiningMarks);
         // Add combined permutations
-        for(int x = 0; x < perms.length; x++) {
-            String next = base + perms[x];
+        for (String perm : perms) {
+            String next = base + perm;
             dst.add(next);
             next = composeOneStep(next);
             if (next != null) {
@@ -2087,8 +2086,7 @@ loop:   for(int x=0, offset=0; x<nCodePoints; x++, offset+=len) {
      * ignoring the COMMENTS setting
      */
     private int readEscaped() {
-        int ch = temp[cursor++];
-        return ch;
+        return temp[cursor++];
     }
 
     /**
@@ -2106,8 +2104,7 @@ loop:   for(int x=0, offset=0; x<nCodePoints; x++, offset+=len) {
      * ignoring the COMMENTS setting
      */
     private int nextEscaped() {
-        int ch = temp[++cursor];
-        return ch;
+        return temp[++cursor];
     }
 
     /**
@@ -2220,7 +2217,7 @@ loop:   for(int x=0, offset=0; x<nCodePoints; x++, offset+=len) {
      * Determines if the specified code point is a supplementary
      * character or unpaired surrogate.
      */
-    private static final boolean isSupplementary(int ch) {
+    private static boolean isSupplementary(int ch) {
         return ch >= Character.MIN_SUPPLEMENTARY_CODE_POINT ||
                Character.isSurrogate((char)ch);
     }
@@ -3270,7 +3267,6 @@ loop:   for(int x=0, offset=0; x<nCodePoints; x++, offset+=len) {
             // Discover if the group is deterministic
             TreeInfo info = new TreeInfo();
             if (head.study(info)) { // Deterministic
-                GroupTail temp = (GroupTail) tail;
                 head = root = new GroupCurly(head.next, curly.cmin,
                                    curly.cmax, curly.type,
                                    ((GroupTail)tail).localIndex,
@@ -3604,8 +3600,8 @@ loop:   for(int x=0, offset=0; x<nCodePoints; x++, offset+=len) {
     //
     // Utility methods for code point support
     //
-    private static final int countChars(CharSequence seq, int index,
-                                        int lengthInCodePoints) {
+    private static int countChars(CharSequence seq, int index,
+                                  int lengthInCodePoints) {
         // optimization
         if (lengthInCodePoints == 1 && index >= 0 && index < seq.length() &&
             !Character.isHighSurrogate(seq.charAt(index))) {
@@ -3640,7 +3636,7 @@ loop:   for(int x=0, offset=0; x<nCodePoints; x++, offset+=len) {
         return index - x;
     }
 
-    private static final int countCodePoints(CharSequence seq) {
+    private static int countCodePoints(CharSequence seq) {
         int length = seq.length();
         int n = 0;
         for (int i = 0; i < length; ) {
