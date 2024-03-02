@@ -309,6 +309,17 @@ public class ConcurrentSkipListSet<E>
             return true;
         if (!(o instanceof Set))
             return false;
+        if (o instanceof SortedSet) {
+            Iterator<?> iter1 = iterator();
+            Iterator<?> iter2 = ((SortedSet) o).iterator();
+
+            while (iter1.hasNext() && iter2.hasNext()) {
+                if (!iter1.next().equals(iter2.next())) {
+                    return false;
+                }
+            }
+            return !(iter1.hasNext() || iter1.hasNext());
+        }
         Collection<?> c = (Collection<?>) o;
         try {
             return containsAll(c) && c.containsAll(this);
