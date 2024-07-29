@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1994, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1994, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -211,44 +211,9 @@ public class MimeTable implements FileNameMap {
         return extensionMap.get(fileExtension);
     }
 
-    public synchronized MimeEntry findByDescription(String description) {
-        Enumeration<MimeEntry> e = elements();
-        while (e.hasMoreElements()) {
-            MimeEntry entry = e.nextElement();
-            if (description.equals(entry.getDescription())) {
-                return entry;
-            }
-        }
-
-        // We failed, now try treating description as type
-        return find(description);
-    }
-
-    String getTempFileTemplate() {
-        return tempFileTemplate;
-    }
-
     public synchronized Enumeration<MimeEntry> elements() {
         return entries.elements();
     }
-
-    // For backward compatibility -- mailcap format files
-    // This is not currently used, but may in the future when we add ability
-    // to read BOTH the properties format and the mailcap format.
-    @SuppressWarnings("removal")
-    protected static String[] mailcapLocations =
-        java.security.AccessController.doPrivileged(
-                new java.security.PrivilegedAction<String[]>() {
-                    public String[] run() {
-                        return new String[]{
-                                System.getProperty("user.mailcap"),
-                                StaticProperty.userHome() + "/.mailcap",
-                                "/etc/mailcap",
-                                "/usr/etc/mailcap",
-                                "/usr/local/etc/mailcap",
-                        };
-                    }
-                });
 
     public synchronized void load() {
         Properties entries = new Properties();
@@ -386,44 +351,6 @@ public class MimeTable implements FileNameMap {
         return MimeEntry.UNKNOWN;
     }
 
-    public Properties getAsProperties() {
-        Properties properties = new Properties();
-        Enumeration<MimeEntry> e = elements();
-        while (e.hasMoreElements()) {
-            MimeEntry entry = e.nextElement();
-            properties.put(entry.getType(), entry.toProperty());
-        }
-
-        return properties;
-    }
-
-    protected boolean saveAsProperties(File file) {
-        try (FileOutputStream os = new FileOutputStream(file)) {
-            Properties properties = getAsProperties();
-            properties.put("temp.file.template", tempFileTemplate);
-            String tag;
-            // Perform the property security check for user.name
-            @SuppressWarnings("removal")
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                sm.checkPropertyAccess("user.name");
-            }
-            String user = StaticProperty.userName();
-            if (user != null) {
-                tag = "; customized for " + user;
-                properties.store(os, filePreamble + tag);
-            }
-            else {
-                properties.store(os, filePreamble);
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
-    }
     /*
      * Debugging utilities
      *
