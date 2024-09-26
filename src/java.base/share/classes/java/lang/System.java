@@ -891,6 +891,7 @@ public final class System {
         return lineSeparator;
     }
 
+    @Stable
     private static String lineSeparator;
 
     /**
