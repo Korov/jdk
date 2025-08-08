@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2019, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -88,9 +88,13 @@ public class CookieManagerTest {
         cs.add(new URI("https://immutable.example.com"), new HttpCookie("c", "v"));
 
         List<URI> uris = cs.getURIs();
-        System.out.println(uris.getClass());
-        System.out.println(uris);
-        Assert.assertThrows(UnsupportedOperationException.class, uris.add(new URI("https://should.fail.example.com")));
+        try {
+            uris.add(new URI("https://should.fail.example.com"));
+            System.out.println(uris);
+            throw new RuntimeException("immutable CookieStore URIs list should not allow modification");
+        } catch (UnsupportedOperationException expected) {
+            // Test passed - expected exception
+        }
     }
 
     public static void startHttpServer() throws IOException {
