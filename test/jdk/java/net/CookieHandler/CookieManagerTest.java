@@ -82,15 +82,15 @@ public class CookieManagerTest {
         cookieStoreTest();
     }
 
-    public static void cookieStoreTest() throws IOException {
+    public static void cookieStoreTest() throws URISyntaxException {
+        URI uri = new URI("https://immutable.example.com");
         CookieManager cm = new CookieManager();
         CookieStore cs = cm.getCookieStore();
-        cs.add(new URI("https://immutable.example.com"), new HttpCookie("c", "v"));
+        cs.add(uri, new HttpCookie("c", "v"));
 
         List<URI> uris = cs.getURIs();
         try {
-            uris.add(new URI("https://should.fail.example.com"));
-            System.out.println(uris);
+            uris.add(uri);
             throw new RuntimeException("immutable CookieStore URIs list should not allow modification");
         } catch (UnsupportedOperationException expected) {
             // Test passed - expected exception
