@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -78,9 +78,22 @@ public class CookieManagerTest {
             throw new RuntimeException("Test failed : bad cookie header");
         }
         checkCookiePolicy();
+
+        cookieStoreTest();
     }
 
-   public static void startHttpServer() throws IOException {
+    public static void cookieStoreTest() throws IOException {
+        CookieManager cm = new CookieManager();
+        CookieStore cs = cm.getCookieStore();
+        cs.add(new URI("https://immutable.example.com"), new HttpCookie("c", "v"));
+
+        List<URI> uris = cs.getURIs();
+        System.out.println(uris.getClass());
+        System.out.println(uris);
+        Assert.assertThrows(UnsupportedOperationException.class, uris.add(new URI("https://should.fail.example.com")));
+    }
+
+    public static void startHttpServer() throws IOException {
         httpTrans = new CookieTransactionHandler();
         server = HttpServer.create(new InetSocketAddress(hostAddress, 0), 0);
         server.createContext("/", httpTrans);
