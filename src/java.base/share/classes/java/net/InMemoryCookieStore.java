@@ -176,7 +176,7 @@ class InMemoryCookieStore implements CookieStore {
             lock.unlock();
         }
 
-        return uris;
+        return Collections.unmodifiableList(uris);
     }
 
 
