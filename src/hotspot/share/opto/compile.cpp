@@ -2566,11 +2566,13 @@ void Compile::Optimize() {
 
   assert(igvn._worklist.size() == 0, "not empty");
 
-  assert(_late_inlines.length() == 0 || IncrementalInlineMH || IncrementalInlineVirtual, "not empty");
+  assert(_late_inlines.length() == 0 || IncrementalInline || IncrementalInlineMH || IncrementalInlineVirtual, "not empty");
 
   if (_late_inlines.length() > 0) {
-    // More opportunities to optimize virtual and MH calls.
-    // Though it's maybe too late to perform inlining, strength-reducing them to direct calls is still an option.
+    // More opportunities to optimize deferred calls.
+    // Though it's maybe too late to perform inlining, strength-reducing virtual
+    // and MH calls to direct calls is still an option. Direct calls are simply
+    // drained from the queue once late inlining is no longer allowed.
     process_late_inline_calls_no_inline(igvn);
     if (failing())  return;
   }
