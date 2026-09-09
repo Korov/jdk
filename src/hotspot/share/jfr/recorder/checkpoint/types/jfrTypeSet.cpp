@@ -404,14 +404,7 @@ static void write_klass(JfrCheckpointWriter* writer, KlassPtr klass, bool leakp,
   }
 }
 
-/*
- * In C++03, functions used as template parameters must have external linkage;
- * this restriction was removed in C++11. Change back to "static" and
- * rename functions when C++11 becomes available.
- *
- * The weird naming is an effort to decrease the risk of name clashes.
- */
-int write__klass(JfrCheckpointWriter* writer, const void* k) {
+static int write_klass_adapter(JfrCheckpointWriter* writer, const void* k) {
   assert(k != nullptr, "invariant");
   KlassPtr klass = static_cast<KlassPtr>(k);
   int elements = 0;
@@ -419,7 +412,7 @@ int write__klass(JfrCheckpointWriter* writer, const void* k) {
   return elements;
 }
 
-int write__klass__leakp(JfrCheckpointWriter* writer, const void* k) {
+static int write_klass_leakp(JfrCheckpointWriter* writer, const void* k) {
   assert(k != nullptr, "invariant");
   KlassPtr klass = static_cast<KlassPtr>(k);
   int elements = 0;
@@ -598,7 +591,7 @@ static void do_all_klasses() {
 
 // KlassWriter.
 typedef SerializePredicate<KlassPtr> KlassPredicate;
-typedef JfrPredicatedTypeWriterImplHost<KlassPtr, KlassPredicate, write__klass> KlassWriterImpl;
+typedef JfrPredicatedTypeWriterImplHost<KlassPtr, KlassPredicate, write_klass_adapter> KlassWriterImpl;
 typedef JfrTypeWriterHost<KlassWriterImpl, TYPE_CLASS> KlassWriter;
 
 // Klass registration.
@@ -617,7 +610,7 @@ public:
 
 // KlassWriter for leakp. Only used during start or rotation, i.e. the previous epoch.
 typedef LeakPredicate<KlassPtr> LeakKlassPredicate;
-typedef JfrPredicatedTypeWriterImplHost<KlassPtr, LeakKlassPredicate, write__klass__leakp> LeakKlassWriterImpl;
+typedef JfrPredicatedTypeWriterImplHost<KlassPtr, LeakKlassPredicate, write_klass_leakp> LeakKlassWriterImpl;
 typedef JfrTypeWriterHost<LeakKlassWriterImpl, TYPE_CLASS> LeakKlassWriter;
 
 // Composite KlassWriter with registration.
